@@ -65,8 +65,8 @@ def test_update_picture_by_id(client, picture):
     res_picture = res.json
     assert res_picture['id'] == 2
     res_state = res_picture["event_state"]
-    # new_state = "*" + res_state
-    new_state = res_state
+    new_state = "*" + res_state
+    # new_state = res_state
     res_picture["event_state"] = new_state
     res = client.put(f'/picture/{id}', data=json.dumps(res_picture),
                      content_type="application/json")
@@ -85,6 +85,3 @@ def test_delete_picture_by_id(client):
     # assert res.json['length'] == 9
     res = client.delete("/picture/100")
     assert res.status_code == 404
-
-
-
