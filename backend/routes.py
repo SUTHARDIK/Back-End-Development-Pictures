@@ -35,10 +35,7 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    if data:
-        return jsonify(data), 200
-    
-    return {"message": "Internal server error"}, 500
+    return jsonify(data)
 
 ######################################################################
 # GET A PICTURE
@@ -49,9 +46,8 @@ def get_pictures():
 def get_picture_by_id(id):
     for picture in data:
         if picture["id"] == id:
-            return jsonify(picture), 200
-    
-    return {"message": "Picture not found"}, 404
+            return picture
+    return {"message": "picture not found"}, 404
 
 
 ######################################################################
@@ -59,16 +55,17 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    new_picture = request.get_json()
-
+    # get data from the json body
+    picture_in = request.json
+    print(picture_in)
+    # if the id is already there, return 303 with the URL for the resource
     for picture in data:
-        if picture["id"] == new_picture["id"]:
-            return {"Message": f"picture with id {picture['id']} already present"}, 302
-    
-    data.append(new_picture)
-
-    return jsonify(new_picture), 201
-
+        if picture_in["id"] == picture["id"]:
+            return {
+                "Message": f"picture with id {picture_in['id']} already present"
+            }, 302
+    data.append(picture_in)
+    return picture_in, 201
 
 ######################################################################
 # UPDATE A PICTURE
@@ -77,15 +74,13 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-
-    picture_new_data = request.get_json()
-
-    for picture in data:
+    # get data from the json body
+    picture_in = request.json
+    for index, picture in enumerate(data):
         if picture["id"] == id:
-            data[picture].update(picture_new_data)
-    
-    return {"message": "Picture not found"}, 404
-
+            data[index] = picture_in
+            return picture, 201
+    return {"message": "picture not found"}, 404
 
 ######################################################################
 # DELETE A PICTURE
@@ -95,6 +90,5 @@ def delete_picture(id):
     for picture in data:
         if picture["id"] == id:
             data.remove(picture)
-            return {}, 204
-
+            return "", 204
     return {"message": "picture not found"}, 404
